@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Link } from "react-router-dom";
 import { 
   Building2, 
@@ -47,8 +48,18 @@ const Index = () => {
   ];
 
   const topCompanies = [
-    "TCS", "Infosys", "Wipro", "Accenture", "Cognizant", "HCL", 
-    "IBM", "Amazon", "Microsoft", "Google", "Adobe", "Flipkart"
+    { name: "TCS", logo: "🏢" },
+    { name: "Infosys", logo: "💼" },
+    { name: "Microsoft", logo: "🖥️" },
+    { name: "Google", logo: "🔍" },
+    { name: "Amazon", logo: "📦" },
+    { name: "Accenture", logo: "⚡" },
+    { name: "Wipro", logo: "🌐" },
+    { name: "Cognizant", logo: "🔧" },
+    { name: "IBM", logo: "🤖" },
+    { name: "Capgemini", logo: "💡" },
+    { name: "HCL", logo: "🏭" },
+    { name: "Adobe", logo: "🎨" }
   ];
 
   return (
@@ -137,25 +148,45 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Companies Section */}
+      {/* Companies Carousel Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-50 to-green-50">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Top Recruiting Companies
           </h2>
           <p className="text-xl text-gray-600 mb-12">
-            Get insights for leading companies that actively recruit from LNCT
+            Discover opportunities with leading companies that actively recruit from LNCT
           </p>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-12">
-            {topCompanies.map((company, index) => (
-              <div
-                key={index}
-                className="bg-white p-4 rounded-lg border border-blue-100 hover:shadow-md transition-shadow"
-              >
-                <div className="font-semibold text-gray-800">{company}</div>
-              </div>
-            ))}
+          <div className="mb-12">
+            <Carousel 
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full max-w-5xl mx-auto"
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {topCompanies.map((company, index) => (
+                  <CarouselItem key={index} className="pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4">
+                    <Link to={`/companies/${company.name.toLowerCase()}`}>
+                      <Card className="border-blue-100 hover:shadow-lg hover:border-blue-300 transition-all cursor-pointer group bg-white">
+                        <CardContent className="p-6 text-center">
+                          <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
+                            {company.logo}
+                          </div>
+                          <div className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+                            {company.name}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex" />
+              <CarouselNext className="hidden md:flex" />
+            </Carousel>
           </div>
           
           <Link to="/companies">
