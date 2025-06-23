@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -79,7 +78,7 @@ const Index = () => {
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Master placement preparation with company-wise insights, previous year questions, 
-            interview tips, and AI-powered assistance designed specifically for LNCT students.
+            interview tips, and AI-powered assistance designed for students across India.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/companies">
@@ -124,7 +123,7 @@ const Index = () => {
               Everything You Need to Succeed
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Comprehensive tools and resources designed to help LNCT students excel in campus placements
+              Comprehensive tools and resources designed to help students excel in campus placements
             </p>
           </div>
           
@@ -155,7 +154,7 @@ const Index = () => {
             Top Recruiting Companies
           </h2>
           <p className="text-xl text-gray-600 mb-12">
-            Discover opportunities with leading companies that actively recruit from LNCT
+            Discover opportunities with leading companies across India
           </p>
           
           <div className="mb-12">
@@ -259,7 +258,7 @@ const Index = () => {
             Ready to Crack Your Campus Placements?
           </h2>
           <p className="text-xl mb-8 opacity-90">
-            Join thousands of LNCT students who have successfully landed their dream jobs
+            Join thousands of students who have successfully landed their dream jobs
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/companies">

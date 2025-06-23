@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, MessageCircle, GraduationCap } from "lucide-react";
+import { Menu, X, MessageCircle, GraduationCap, LogIn } from "lucide-react";
 import ChatBot from "./ChatBot";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -47,11 +47,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               ))}
               <Button
                 onClick={() => setIsChatOpen(true)}
-                className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                variant="outline"
+                className="border-blue-200 text-blue-700 hover:bg-blue-50"
               >
                 <MessageCircle className="h-4 w-4 mr-2" />
                 AI Assistant
               </Button>
+              <Link to="/login">
+                <Button className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Login
+                </Button>
+              </Link>
             </div>
 
             {/* Mobile menu button */}
@@ -89,11 +96,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     setIsChatOpen(true);
                     setIsMenuOpen(false);
                   }}
-                  className="mx-3 mt-2 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                  variant="outline"
+                  className="mx-3 mt-2 border-blue-200 text-blue-700 hover:bg-blue-50"
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   AI Assistant
                 </Button>
+                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                  <Button className="mx-3 mt-2 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Login
+                  </Button>
+                </Link>
               </div>
             </div>
           )}
@@ -119,7 +133,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </span>
             </div>
             <p className="text-gray-600 text-sm">
-              Empowering LNCT students for successful campus placements
+              Empowering students across India for successful campus placements
             </p>
             <p className="text-gray-500 text-xs mt-2">
               © 2024 CampusCrack. All rights reserved.
