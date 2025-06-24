@@ -91,7 +91,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     className="border-green-200 text-green-700 hover:bg-green-50"
                   >
                     <User className="h-4 w-4 mr-2" />
-                    Dashboard
+                    {userRole === 'admin' ? 'Admin Panel' : 'Dashboard'}
                   </Button>
                   <Button
                     onClick={handleSignOut}
@@ -165,7 +165,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                       className="border-green-200 text-green-700 hover:bg-green-50"
                     >
                       <User className="h-4 w-4 mr-2" />
-                      Dashboard
+                      {userRole === 'admin' ? 'Admin Panel' : 'Dashboard'}
                     </Button>
                     <Button
                       onClick={() => {

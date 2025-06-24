@@ -33,11 +33,8 @@ const Auth = () => {
   // Redirect if already logged in and email confirmed
   useEffect(() => {
     if (user && user.email_confirmed_at && userRole) {
-      if (userRole === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/dashboard');
-      }
+      // Redirect to home page instead of dashboard for better UX
+      navigate('/');
     }
   }, [user, userRole, navigate]);
 
