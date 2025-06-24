@@ -11,6 +11,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, userData: any) => Promise<any>;
   signIn: (email: string, password: string) => Promise<any>;
   signOut: () => Promise<void>;
+  resendConfirmation: (email: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -53,11 +54,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email_confirmed_at);
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user) {
-          // Defer role fetching to prevent deadlocks
+        if (session?.user && session.user.email_confirmed_at) {
+          // Only fetch role if email is confirmed
           setTimeout(() => {
             fetchUserRole(session.user.id);
           }, 0);
@@ -71,10 +73,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Existing session:', session?.user?.email_confirmed_at);
       setSession(session);
       setUser(session?.user ?? null);
       
-      if (session?.user) {
+      if (session?.user && session.user.email_confirmed_at) {
         fetchUserRole(session.user.id);
       }
       setLoading(false);
@@ -84,7 +87,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, userData: any) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/auth`;
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -102,6 +105,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
+    });
+    
+    return { data, error };
+  };
+
+  const resendConfirmation = async (email: string) => {
+    const { data, error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth`
+      }
     });
     
     return { data, error };
@@ -125,6 +140,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     signUp,
     signIn,
     signOut,
+    resendConfirmation,
   };
 
   return (

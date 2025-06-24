@@ -1,12 +1,12 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link, useNavigate } from "react-router-dom";
-import { GraduationCap, Mail, Lock, User, Phone, School } from "lucide-react";
+import { GraduationCap, Mail, Lock, User, Phone, School, AlertCircle, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
@@ -15,6 +15,8 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [showEmailNotConfirmed, setShowEmailNotConfirmed] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
   const [signupData, setSignupData] = useState({
     firstName: "",
     lastName: "",
@@ -25,12 +27,12 @@ const Auth = () => {
   });
   
   const { toast } = useToast();
-  const { signIn, signUp, user, userRole } = useAuth();
+  const { signIn, signUp, resendConfirmation, user, userRole } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
+  // Redirect if already logged in and email confirmed
   useEffect(() => {
-    if (user && userRole) {
+    if (user && user.email_confirmed_at && userRole) {
       if (userRole === 'admin') {
         navigate('/admin');
       } else {
@@ -42,20 +44,42 @@ const Auth = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setShowEmailNotConfirmed(false);
     
     try {
       const { data, error } = await signIn(loginEmail, loginPassword);
       
       if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          setShowEmailNotConfirmed(true);
+          setPendingEmail(loginEmail);
+          toast({
+            title: "Email Not Confirmed",
+            description: "Please check your email and click the confirmation link before logging in.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Login Failed",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
+        return;
+      }
+
+      if (data.user && !data.user.email_confirmed_at) {
+        setShowEmailNotConfirmed(true);
+        setPendingEmail(loginEmail);
         toast({
-          title: "Login Failed",
-          description: error.message,
+          title: "Email Not Confirmed",
+          description: "Please check your email and click the confirmation link.",
           variant: "destructive"
         });
         return;
       }
 
-      if (data.user) {
+      if (data.user && data.user.email_confirmed_at) {
         toast({
           title: "Login Successful",
           description: "Welcome back to CampusCrack!",
@@ -67,6 +91,36 @@ const Auth = () => {
       toast({
         title: "Login Failed", 
         description: error.message || "An error occurred during login",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!pendingEmail) return;
+    
+    setIsLoading(true);
+    try {
+      const { error } = await resendConfirmation(pendingEmail);
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Confirmation Email Sent",
+          description: "Please check your email for the confirmation link.",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to resend confirmation email",
         variant: "destructive"
       });
     } finally {
@@ -98,7 +152,17 @@ const Auth = () => {
       if (data.user) {
         toast({
           title: "Registration Successful",
-          description: "Your account has been created successfully! Please check your email for verification.",
+          description: "Please check your email for verification before logging in.",
+        });
+        
+        // Clear form and switch to login tab
+        setSignupData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          college: "",
+          password: ""
         });
       }
     } catch (error: any) {
@@ -125,6 +189,27 @@ const Auth = () => {
           <p className="text-gray-600 mt-2">Your Ultimate Placement Companion</p>
         </div>
 
+        {showEmailNotConfirmed && (
+          <Alert className="mb-6 border-orange-200 bg-orange-50">
+            <AlertCircle className="h-4 w-4 text-orange-600" />
+            <AlertDescription className="text-orange-800">
+              <div className="space-y-3">
+                <p>Your email address needs to be verified before you can log in.</p>
+                <p className="text-sm">Didn't receive the email? Check your spam folder or:</p>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleResendConfirmation}
+                  disabled={isLoading}
+                  className="border-orange-300 text-orange-700 hover:bg-orange-100"
+                >
+                  Resend Confirmation Email
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Login</TabsTrigger>
@@ -140,9 +225,8 @@ const Auth = () => {
                 </CardDescription>
                 <div className="mt-2 p-3 bg-blue-50 rounded-lg">
                   <p className="text-sm text-blue-700">
-                    <strong>Default Admin:</strong><br />
-                    Email: admin@campuscrack.com<br />
-                    Password: admin123
+                    <strong>For Testing:</strong><br />
+                    You can disable email confirmation in Supabase Settings → Authentication → Email Auth → Confirm email = OFF
                   </p>
                 </div>
               </CardHeader>
@@ -197,6 +281,12 @@ const Auth = () => {
                 <CardDescription>
                   Join thousands of students preparing for placements
                 </CardDescription>
+                <Alert className="mt-3 border-green-200 bg-green-50">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800 text-sm">
+                    After registration, you'll receive a confirmation email. Please verify your email before logging in.
+                  </AlertDescription>
+                </Alert>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleRegister} className="space-y-4">
