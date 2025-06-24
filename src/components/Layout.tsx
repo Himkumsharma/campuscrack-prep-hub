@@ -1,20 +1,49 @@
 
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, MessageCircle, GraduationCap, LogIn } from "lucide-react";
+import { Menu, X, MessageCircle, GraduationCap, LogIn, User, LogOut } from "lucide-react";
 import ChatBot from "./ChatBot";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, userRole, signOut } = useAuth();
+  const { toast } = useToast();
 
   const navigation = [
     { name: "Home", href: "/" },
     { name: "Companies", href: "/companies" },
     { name: "Resources", href: "/resources" },
   ];
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Signed Out",
+        description: "You have been successfully signed out.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDashboardNavigation = () => {
+    if (userRole === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
@@ -53,12 +82,34 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <MessageCircle className="h-4 w-4 mr-2" />
                 AI Assistant
               </Button>
-              <Link to="/login">
-                <Button className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
-                  <LogIn className="h-4 w-4 mr-2" />
-                  Login
-                </Button>
-              </Link>
+              
+              {user ? (
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={handleDashboardNavigation}
+                    variant="outline"
+                    className="border-green-200 text-green-700 hover:bg-green-50"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Button>
+                  <Button
+                    onClick={handleSignOut}
+                    variant="outline"
+                    className="border-red-200 text-red-700 hover:bg-red-50"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <Link to="/auth">
+                  <Button className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
+                    <LogIn className="h-4 w-4 mr-2" />
+                    Login
+                  </Button>
+                </Link>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -102,12 +153,40 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   <MessageCircle className="h-4 w-4 mr-2" />
                   AI Assistant
                 </Button>
-                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                  <Button className="mx-3 mt-2 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
-                    <LogIn className="h-4 w-4 mr-2" />
-                    Login
-                  </Button>
-                </Link>
+                
+                {user ? (
+                  <div className="flex flex-col space-y-2 mx-3 mt-2">
+                    <Button
+                      onClick={() => {
+                        handleDashboardNavigation();
+                        setIsMenuOpen(false);
+                      }}
+                      variant="outline"
+                      className="border-green-200 text-green-700 hover:bg-green-50"
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Dashboard
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        handleSignOut();
+                        setIsMenuOpen(false);
+                      }}
+                      variant="outline"
+                      className="border-red-200 text-red-700 hover:bg-red-50"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </div>
+                ) : (
+                  <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="mx-3 mt-2 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
+                      <LogIn className="h-4 w-4 mr-2" />
+                      Login
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           )}
