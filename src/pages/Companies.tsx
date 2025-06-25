@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,13 +15,15 @@ import {
   TrendingUp,
   Code,
   Brain,
-  MessageSquare
+  MessageSquare,
+  Filter
 } from "lucide-react";
 import ChatBot from "@/components/ChatBot";
 import CompanyInsightsDialog from "@/components/CompanyInsightsDialog";
 
 const Companies = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("all");
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
@@ -109,13 +112,47 @@ const Companies = () => {
       rounds: ["Cognitive Assessment", "Technical Round", "Communication Round"],
       skills: ["Analytics", "Communication", "Problem Solving", "Domain Knowledge"],
       tips: "Develop strong analytical and communication skills."
+    },
+    {
+      id: 7,
+      name: "Capgemini",
+      logo: "💻",
+      category: "Consulting",
+      package: "4.0 - 8.5 LPA",
+      location: "Multiple Cities",
+      hiring: "200+ positions",
+      difficulty: "Medium",
+      description: "Global consulting, technology services and digital transformation company.",
+      rounds: ["Online Test", "Technical Interview", "HR Round"],
+      skills: ["Java", "Communication", "Problem Solving", "Business Analysis"],
+      tips: "Focus on both technical and business communication skills."
+    },
+    {
+      id: 8,
+      name: "Deloitte",
+      logo: "🏢",
+      category: "Consulting",
+      package: "6.0 - 12.0 LPA",
+      location: "Multiple Cities",
+      hiring: "150+ positions",
+      difficulty: "Medium",
+      description: "Global professional services network providing audit, consulting, and advisory services.",
+      rounds: ["Online Assessment", "Case Study", "Partner Interview"],
+      skills: ["Analytics", "Business Acumen", "Communication", "Leadership"],
+      tips: "Prepare for case studies and demonstrate business thinking."
     }
   ];
 
-  const filteredCompanies = companies.filter(company =>
-    company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    company.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter companies based on search and category
+  const filteredCompanies = companies.filter(company => {
+    const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = selectedFilter === "all" || 
+      (selectedFilter === "service" && company.category === "Service Based") ||
+      (selectedFilter === "product" && company.category === "Product Based") ||
+      (selectedFilter === "consulting" && company.category === "Consulting");
+    return matchesSearch && matchesFilter;
+  });
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -145,18 +182,33 @@ const Companies = () => {
             Company Insights
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Comprehensive information about 30+ companies recruiting from LNCT
+            Comprehensive information about companies recruiting from LNCT
           </p>
           
-          {/* Search */}
-          <div className="max-w-md mx-auto relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search companies or categories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+          {/* Search and Filter */}
+          <div className="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search companies or categories..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Filter className="h-4 w-4 text-gray-500" />
+              <select 
+                value={selectedFilter}
+                onChange={(e) => setSelectedFilter(e.target.value)}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">All Categories</option>
+                <option value="service">Service Based</option>
+                <option value="product">Product Based</option>
+                <option value="consulting">Consulting</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -165,7 +217,7 @@ const Companies = () => {
           <Card className="border-blue-100 text-center">
             <CardContent className="pt-6">
               <Building2 className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-gray-900">30+</div>
+              <div className="text-2xl font-bold text-gray-900">{companies.length}+</div>
               <div className="text-gray-600">Companies</div>
             </CardContent>
           </Card>
@@ -193,7 +245,7 @@ const Companies = () => {
         </div>
 
         {/* Categories */}
-        <Tabs defaultValue="all" className="mb-8">
+        <Tabs value={selectedFilter} onValueChange={setSelectedFilter} className="mb-8">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="all">All Companies</TabsTrigger>
             <TabsTrigger value="service">Service Based</TabsTrigger>

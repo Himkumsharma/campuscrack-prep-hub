@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,27 +16,67 @@ import {
   Clock,
   Building2,
   TrendingUp,
-  Lightbulb
+  Lightbulb,
+  Filter,
+  MessageSquare
 } from "lucide-react";
+import ChatBot from "@/components/ChatBot";
 
 const Resources = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
-  // Company data for the recruiting companies grid
+  // Company data with logos and categories
   const recruitingCompanies = [
-    "AMERICAN CHASE", "63 MOONS", "ACCENTURE", "ACMEGRADE", "ADANI", "AIRTEL",
-    "ALLEGION", "ASE International", "ASHOK LEYLAND", "BETAQUE", "CAPGEMINI", 
-    "CARWALE", "CISCO", "Cogitate Technology", "CSG", "DELOITTE", "DEUTSCHE BANK",
-    "ELITMUS", "EnergyGreen", "EPAM", "Equifax PEC", "EVISION", "G10X", 
-    "HIKE EDUCATION", "Hoonartek", "INFOSYS", "JSW", "KARAMTARA", "LTIMindtree",
-    "NEWGEN", "Quantiphi", "ZSCALER", "TCS", "Microsoft", "Google"
+    { name: "AMERICAN CHASE", logo: "🏦", category: "Service Based" },
+    { name: "63 MOONS", logo: "🌙", category: "Product Based" },
+    { name: "ACCENTURE", logo: "⚡", category: "Consulting" },
+    { name: "ACMEGRADE", logo: "📊", category: "Service Based" },
+    { name: "ADANI", logo: "⚡", category: "Product Based" },
+    { name: "AIRTEL", logo: "📱", category: "Service Based" },
+    { name: "ALLEGION", logo: "🔐", category: "Product Based" },
+    { name: "ASE International", logo: "🌐", category: "Service Based" },
+    { name: "ASHOK LEYLAND", logo: "🚛", category: "Product Based" },
+    { name: "BETAQUE", logo: "💼", category: "Service Based" },
+    { name: "CAPGEMINI", logo: "💻", category: "Consulting" },
+    { name: "CARWALE", logo: "🚗", category: "Product Based" },
+    { name: "CISCO", logo: "🌐", category: "Product Based" },
+    { name: "Cogitate Technology", logo: "🧠", category: "Service Based" },
+    { name: "CSG", logo: "💼", category: "Service Based" },
+    { name: "DELOITTE", logo: "🏢", category: "Consulting" },
+    { name: "DEUTSCHE BANK", logo: "🏦", category: "Service Based" },
+    { name: "ELITMUS", logo: "📝", category: "Service Based" },
+    { name: "EnergyGreen", logo: "🌱", category: "Product Based" },
+    { name: "EPAM", logo: "💻", category: "Service Based" },
+    { name: "Equifax PEC", logo: "📊", category: "Service Based" },
+    { name: "EVISION", logo: "👁️", category: "Service Based" },
+    { name: "G10X", logo: "🚀", category: "Product Based" },
+    { name: "HIKE EDUCATION", logo: "📚", category: "Service Based" },
+    { name: "Hoonartek", logo: "🔧", category: "Service Based" },
+    { name: "INFOSYS", logo: "💼", category: "Service Based" },
+    { name: "JSW", logo: "🏭", category: "Product Based" },
+    { name: "KARAMTARA", logo: "⭐", category: "Service Based" },
+    { name: "LTIMindtree", logo: "🌳", category: "Service Based" },
+    { name: "NEWGEN", logo: "🆕", category: "Service Based" },
+    { name: "Quantiphi", logo: "📈", category: "Consulting" },
+    { name: "ZSCALER", logo: "🔒", category: "Product Based" },
+    { name: "TCS", logo: "🏢", category: "Service Based" },
+    { name: "Microsoft", logo: "🪟", category: "Product Based" },
+    { name: "Google", logo: "🔍", category: "Product Based" }
   ];
 
-  // Filter companies based on search
-  const filteredCompanies = recruitingCompanies.filter(company =>
-    company.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter companies based on search and category
+  const filteredCompanies = recruitingCompanies.filter(company => {
+    const matchesSearch = company.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = selectedFilter === "all" || 
+      (selectedFilter === "service" && company.category === "Service Based") ||
+      (selectedFilter === "product" && company.category === "Product Based") ||
+      (selectedFilter === "consulting" && company.category === "Consulting");
+    return matchesSearch && matchesFilter;
+  });
 
+  // Previous Year Questions
   const previousYearQuestions = [
     {
       id: 1,
@@ -47,7 +86,8 @@ const Resources = () => {
       difficulty: "Medium",
       downloads: 1250,
       questions: 45,
-      year: "2024"
+      year: "2024",
+      pdfUrl: "/pdfs/tcs-nqt-2024.pdf"
     },
     {
       id: 2,
@@ -57,7 +97,8 @@ const Resources = () => {
       difficulty: "Medium",
       downloads: 980,
       questions: 38,
-      year: "2024"
+      year: "2024",
+      pdfUrl: "/pdfs/infosys-mysore-2024.pdf"
     },
     {
       id: 3,
@@ -67,7 +108,8 @@ const Resources = () => {
       difficulty: "Hard",
       downloads: 2100,
       questions: 52,
-      year: "2024"
+      year: "2024",
+      pdfUrl: "/pdfs/amazon-sde-2024.pdf"
     },
     {
       id: 4,
@@ -77,7 +119,8 @@ const Resources = () => {
       difficulty: "Hard",
       downloads: 1850,
       questions: 41,
-      year: "2024"
+      year: "2024",
+      pdfUrl: "/pdfs/microsoft-campus-2024.pdf"
     },
     {
       id: 5,
@@ -87,7 +130,8 @@ const Resources = () => {
       difficulty: "Easy",
       downloads: 890,
       questions: 35,
-      year: "2024"
+      year: "2024",
+      pdfUrl: "/pdfs/accenture-assessment-2024.pdf"
     },
     {
       id: 6,
@@ -97,10 +141,12 @@ const Resources = () => {
       difficulty: "Medium",
       downloads: 720,
       questions: 40,
-      year: "2024"
+      year: "2024",
+      pdfUrl: "/pdfs/wipro-wilp-2024.pdf"
     }
   ];
 
+  // Interview Tips
   const interviewTips = [
     {
       id: 1,
@@ -136,6 +182,7 @@ const Resources = () => {
     }
   ];
 
+  // Coding Practice
   const codingPractice = [
     {
       id: 1,
@@ -167,6 +214,7 @@ const Resources = () => {
     }
   ];
 
+  // Get difficulty color based on difficulty level
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case "Easy": return "bg-green-100 text-green-800";
@@ -174,6 +222,32 @@ const Resources = () => {
       case "Hard": return "bg-red-100 text-red-800";
       default: return "bg-gray-100 text-gray-800";
     }
+  };
+
+  // Handle download paper functionality
+  const handleDownloadPaper = (pdfUrl: string, title: string) => {
+    // In a real application, you would have actual PDF files in your public folder
+    // For now, we'll show an alert and you can replace this with actual PDF opening logic
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    link.target = '_blank';
+    link.download = `${title}.pdf`;
+    
+    // Check if PDF exists, if not show a message
+    const testLink = document.createElement('a');
+    testLink.href = pdfUrl;
+    
+    fetch(pdfUrl)
+      .then(response => {
+        if (response.ok) {
+          link.click();
+        } else {
+          alert(`PDF for "${title}" will be available soon. Please check back later or contact support.`);
+        }
+      })
+      .catch(() => {
+        alert(`PDF for "${title}" will be available soon. Please check back later or contact support.`);
+      });
   };
 
   return (
@@ -187,6 +261,15 @@ const Resources = () => {
           <p className="text-xl text-gray-600 mb-8">
             Comprehensive collection of previous year questions, interview tips, and coding practice
           </p>
+          
+          {/* AI Assistant Button */}
+          <Button 
+            onClick={() => setIsChatOpen(true)}
+            className="mb-8 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+          >
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Ask AI Assistant
+          </Button>
         </div>
 
         {/* Stats Cards */}
@@ -231,15 +314,30 @@ const Resources = () => {
               Explore resources for all major companies that actively recruit from LNCT
             </p>
             
-            {/* Search for companies */}
-            <div className="max-w-md mx-auto relative mb-8">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search companies..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            {/* Search and Filter */}
+            <div className="flex flex-col md:flex-row gap-4 max-w-2xl mx-auto mb-8">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search companies..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Filter className="h-4 w-4 text-gray-500" />
+                <select 
+                  value={selectedFilter}
+                  onChange={(e) => setSelectedFilter(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="service">Service Based</option>
+                  <option value="product">Product Based</option>
+                  <option value="consulting">Consulting</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -251,9 +349,13 @@ const Resources = () => {
                 className="border-blue-100 hover:shadow-lg hover:border-blue-300 transition-all cursor-pointer group"
               >
                 <CardContent className="p-4 text-center">
-                  <div className="font-semibold text-sm text-gray-800 group-hover:text-blue-600 transition-colors">
-                    {company}
+                  <div className="text-2xl mb-2">{company.logo}</div>
+                  <div className="font-semibold text-xs text-gray-800 group-hover:text-blue-600 transition-colors mb-1">
+                    {company.name}
                   </div>
+                  <Badge variant="outline" className="text-xs">
+                    {company.category}
+                  </Badge>
                 </CardContent>
               </Card>
             ))}
@@ -318,7 +420,10 @@ const Resources = () => {
                       </div>
                     </div>
 
-                    <Button className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
+                    <Button 
+                      className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                      onClick={() => handleDownloadPaper(paper.pdfUrl, paper.title)}
+                    >
                       <Download className="h-4 w-4 mr-2" />
                       Download Paper
                     </Button>
@@ -406,6 +511,12 @@ const Resources = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* AI Chat Dialog */}
+      <ChatBot 
+        isOpen={isChatOpen} 
+        onClose={() => setIsChatOpen(false)}
+      />
     </div>
   );
 };

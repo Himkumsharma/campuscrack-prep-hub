@@ -66,16 +66,21 @@ const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) =>
         });
       }
 
+      console.log('Sending messages to AI:', conversationMessages);
+
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { messages: conversationMessages }
       });
 
+      console.log('AI Response:', { data, error });
+
       if (error) {
-        // Check for specific API quota error
-        if (error.message?.includes('quota') || error.message?.includes('insufficient_quota')) {
-          throw new Error('AI service is temporarily unavailable due to API limits. Please try again later or contact support.');
-        }
-        throw error;
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Failed to get AI response');
+      }
+
+      if (!data || !data.response) {
+        throw new Error('Invalid response from AI service');
       }
 
       const aiResponse: Message = {
@@ -90,23 +95,40 @@ const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) =>
       console.error('Error getting AI response:', error);
       
       let errorMessage = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
-      
+      let fallbackContent = "";
+
+      // Check for specific error types
       if (error.message?.includes('quota') || error.message?.includes('insufficient_quota')) {
-        errorMessage = "The AI service is temporarily unavailable due to API limits. Please try again later or contact support for assistance.";
+        errorMessage = "The AI service is temporarily unavailable due to API limits. Please try again later.";
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = "The request timed out. Please try again with a shorter question.";
+      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorMessage = "Network connection issue. Please check your internet and try again.";
+      }
+
+      // Provide fallback content based on context
+      if (companyName && companyInfo) {
+        fallbackContent = `Here's what I can tell you about ${companyName} from our database:\n\n` +
+          `📍 Location: ${companyInfo.location}\n` +
+          `💰 Package: ${companyInfo.package}\n` +
+          `👥 Hiring: ${companyInfo.hiring}\n` +
+          `📝 Interview Rounds: ${companyInfo.rounds?.join(', ')}\n` +
+          `🔧 Key Skills: ${companyInfo.skills?.join(', ')}\n` +
+          `💡 Pro Tip: ${companyInfo.tips}`;
+      } else {
+        fallbackContent = "Meanwhile, you can explore our Resources section for helpful placement materials, company-specific guides, and practice questions. Feel free to try asking me again in a few minutes!";
       }
 
       toast({
-        title: "Error",
+        title: "Connection Issue",
         description: errorMessage,
         variant: "destructive"
       });
 
-      // Add error message with helpful fallback content
+      // Add fallback message
       const fallbackMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: companyName 
-          ? `I'm currently unavailable, but here's what I can tell you about ${companyName} based on our database: This company typically asks ${companyInfo?.rounds?.join(', ')} in their interview process. Key skills they look for include: ${companyInfo?.skills?.join(', ')}. Pro tip: ${companyInfo?.tips || 'Focus on fundamentals and practice coding problems.'}`
-          : "I'm currently unavailable, but feel free to explore our Resources section for helpful placement materials, or try asking me again in a few minutes.",
+        content: errorMessage + "\n\n" + fallbackContent,
         isUser: false,
         timestamp: new Date(),
       };
@@ -114,6 +136,13 @@ const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) =>
       setMessages(prev => [...prev, fallbackMessage]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
   };
 
@@ -178,7 +207,7 @@ const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) =>
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder={companyName ? `Ask about ${companyName}...` : "Ask me anything about placements..."}
-            onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+            onKeyPress={handleKeyPress}
             className="flex-1"
             disabled={isLoading}
           />
