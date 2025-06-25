@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,11 @@ import {
   Code,
   Brain,
   MessageSquare,
-  Filter
+  Filter,
+  ArrowLeft,
+  Target,
+  BookOpen,
+  HelpCircle
 } from "lucide-react";
 import ChatBot from "@/components/ChatBot";
 import CompanyInsightsDialog from "@/components/CompanyInsightsDialog";
@@ -27,12 +30,13 @@ const Companies = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [isInsightsOpen, setIsInsightsOpen] = useState(false);
+  const [showCompanyDetail, setShowCompanyDetail] = useState(false);
 
   const companies = [
     {
       id: 1,
       name: "Tata Consultancy Services (TCS)",
-      logo: "🏢",
+      logo: "https://logo.clearbit.com/tcs.com",
       category: "Service Based",
       package: "3.5 - 7.0 LPA",
       location: "Multiple Cities",
@@ -41,12 +45,34 @@ const Companies = () => {
       description: "Leading IT services and consulting company with global presence.",
       rounds: ["Online Test", "Technical Interview", "HR Interview"],
       skills: ["Java", "Python", "SQL", "Communication"],
-      tips: "Focus on basic programming concepts and communication skills."
+      tips: "Focus on basic programming concepts and communication skills.",
+      hiringProcess: [
+        "Online Registration on TCS Portal",
+        "Aptitude Test (90 minutes)",
+        "Technical Interview (45 minutes)",
+        "HR Interview (30 minutes)",
+        "Document Verification"
+      ],
+      previousYearQuestions: [
+        "What is polymorphism? Explain with example",
+        "Write a program to reverse a string",
+        "Difference between abstract class and interface",
+        "Explain OOPS concepts with real-world examples",
+        "Tell me about yourself",
+        "Why TCS?"
+      ],
+      crackingStrategy: [
+        "Practice basic programming concepts daily",
+        "Focus on communication skills",
+        "Prepare for behavioral questions",
+        "Study company values and culture",
+        "Practice aptitude questions regularly"
+      ]
     },
     {
       id: 2,
       name: "Infosys",
-      logo: "💼",
+      logo: "https://logo.clearbit.com/infosys.com",
       category: "Service Based", 
       package: "4.0 - 8.0 LPA",
       location: "Bangalore, Pune, Chennai",
@@ -55,12 +81,33 @@ const Companies = () => {
       description: "Global consulting and IT services company known for innovation.",
       rounds: ["Aptitude Test", "Technical Round", "HR Round"],
       skills: ["Java", "Python", "Problem Solving", "Analytics"],
-      tips: "Practice aptitude questions and focus on logical reasoning."
+      tips: "Practice aptitude questions and focus on logical reasoning.",
+      hiringProcess: [
+        "Online Registration",
+        "InfyTQ Assessment",
+        "Technical Interview",
+        "HR Interview",
+        "Final Selection"
+      ],
+      previousYearQuestions: [
+        "What is inheritance in Java?",
+        "Explain SQL vs NoSQL",
+        "Find second largest number in array",
+        "Exception handling in Java",
+        "Your final year project details"
+      ],
+      crackingStrategy: [
+        "Complete InfyTQ certification",
+        "Practice coding problems",
+        "Prepare project explanation",
+        "Study database concepts",
+        "Work on communication skills"
+      ]
     },
     {
       id: 3,
       name: "Amazon",
-      logo: "📦",
+      logo: "https://logo.clearbit.com/amazon.com",
       category: "Product Based",
       package: "12.0 - 25.0 LPA",
       location: "Bangalore, Hyderabad",
@@ -69,7 +116,28 @@ const Companies = () => {
       description: "World's largest e-commerce and cloud computing platform.",
       rounds: ["Online Assessment", "Technical Interview", "Bar Raiser Round"],
       skills: ["Data Structures", "Algorithms", "System Design", "Leadership"],
-      tips: "Master data structures and algorithms. Practice leadership principles."
+      tips: "Master data structures and algorithms. Practice leadership principles.",
+      hiringProcess: [
+        "Online Application",
+        "Online Assessment (3 hours)",
+        "Phone/Video Interview",
+        "Onsite Interviews (4-5 rounds)",
+        "Bar Raiser Interview"
+      ],
+      previousYearQuestions: [
+        "Design URL shortener like bit.ly",
+        "Two sum problem variations",
+        "AWS services explanation",
+        "Leadership principle examples",
+        "System design questions"
+      ],
+      crackingStrategy: [
+        "Master DSA fundamentals",
+        "Practice system design",
+        "Study AWS services",
+        "Prepare STAR method stories",
+        "Practice coding interviews daily"
+      ]
     },
     {
       id: 4,
@@ -173,6 +241,193 @@ const Companies = () => {
     setIsChatOpen(true);
   };
 
+  const handleCompanyClick = (company) => {
+    setSelectedCompany(company);
+    setShowCompanyDetail(true);
+  };
+
+  const handleBackToList = () => {
+    setShowCompanyDetail(false);
+    setSelectedCompany(null);
+  };
+
+  if (showCompanyDetail && selectedCompany) {
+    return (
+      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <Button 
+            variant="outline" 
+            onClick={handleBackToList}
+            className="mb-6"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Companies
+          </Button>
+
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="flex items-center space-x-4 mb-6">
+              <img 
+                src={selectedCompany.logo} 
+                alt={selectedCompany.name}
+                className="w-16 h-16 rounded-lg object-contain"
+                onError={(e) => {
+                  e.target.src = `https://ui-avatars.com/api/?name=${selectedCompany.name}&background=random`;
+                }}
+              />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">{selectedCompany.name}</h1>
+                <div className="flex items-center space-x-2 mt-2">
+                  <Badge variant="outline">{selectedCompany.category}</Badge>
+                  <Badge className={getDifficultyColor(selectedCompany.difficulty)}>
+                    {selectedCompany.difficulty}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-gray-600 mb-8">{selectedCompany.description}</p>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <DollarSign className="h-5 w-5 text-green-600" />
+                  <span className="font-medium">Package: {selectedCompany.package}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <MapPin className="h-5 w-5 text-blue-600" />
+                  <span>Location: {selectedCompany.location}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Users className="h-5 w-5 text-purple-600" />
+                  <span>Hiring: {selectedCompany.hiring}</span>
+                </div>
+              </div>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-medium text-blue-800 mb-2 flex items-center">
+                  <Brain className="h-4 w-4 mr-1" />
+                  Pro Tip
+                </h4>
+                <p className="text-sm text-blue-700">{selectedCompany.tips}</p>
+              </div>
+            </div>
+
+            <Tabs defaultValue="process" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="process">Hiring Process</TabsTrigger>
+                <TabsTrigger value="questions">Previous Questions</TabsTrigger>
+                <TabsTrigger value="strategy">Cracking Strategy</TabsTrigger>
+                <TabsTrigger value="skills">Skills Required</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="process" className="mt-6">
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold flex items-center">
+                    <Calendar className="h-5 w-5 mr-2" />
+                    Hiring Process
+                  </h3>
+                  <div className="space-y-3">
+                    {selectedCompany.hiringProcess?.map((step, index) => (
+                      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-medium">
+                          {index + 1}
+                        </div>
+                        <span>{step}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="questions" className="mt-6">
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold flex items-center">
+                    <HelpCircle className="h-5 w-5 mr-2" />
+                    Previous Year Questions
+                  </h3>
+                  <div className="space-y-3">
+                    {selectedCompany.previousYearQuestions?.map((question, index) => (
+                      <div key={index} className="p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                        <div className="flex items-start space-x-2">
+                          <Badge variant="outline" className="text-xs mt-1">
+                            Q{index + 1}
+                          </Badge>
+                          <p className="text-sm text-gray-800">{question}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="strategy" className="mt-6">
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold flex items-center">
+                    <Target className="h-5 w-5 mr-2" />
+                    Cracking Strategy
+                  </h3>
+                  <div className="space-y-3">
+                    {selectedCompany.crackingStrategy?.map((strategy, index) => (
+                      <div key={index} className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg">
+                        <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium mt-0.5">
+                          {index + 1}
+                        </div>
+                        <span className="text-green-800">{strategy}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="skills" className="mt-6">
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold flex items-center">
+                    <Code className="h-5 w-5 mr-2" />
+                    Required Skills
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedCompany.skills?.map((skill, index) => (
+                      <Badge key={index} variant="secondary" className="text-sm py-2 px-3">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="space-y-2 mt-4">
+                    <h4 className="font-medium">Interview Rounds:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedCompany.rounds?.map((round, index) => (
+                        <Badge key={index} variant="outline" className="text-sm">
+                          {round}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+
+            <div className="mt-8 flex space-x-4">
+              <Button 
+                className="flex-1 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                onClick={() => handleGetAIInsights(selectedCompany)}
+              >
+                <Brain className="h-4 w-4 mr-2" />
+                Get AI Insights
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => handleOpenAIChat(selectedCompany)}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Chat with AI
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -182,7 +437,7 @@ const Companies = () => {
             Company Insights
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Comprehensive information about companies recruiting from LNCT
+            Comprehensive information about companies recruiting from India colleges
           </p>
           
           {/* Search and Filter */}
@@ -257,11 +512,22 @@ const Companies = () => {
         {/* Companies Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCompanies.map((company) => (
-            <Card key={company.id} className="border-blue-100 hover:shadow-lg transition-shadow">
+            <Card 
+              key={company.id} 
+              className="border-blue-100 hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => handleCompanyClick(company)}
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="text-2xl">{company.logo}</div>
+                    <img 
+                      src={company.logo} 
+                      alt={company.name}
+                      className="w-12 h-12 rounded-lg object-contain"
+                      onError={(e) => {
+                        e.target.src = `https://ui-avatars.com/api/?name=${company.name}&background=random`;
+                      }}
+                    />
                     <div>
                       <CardTitle className="text-lg">{company.name}</CardTitle>
                       <CardDescription className="flex items-center space-x-2">
@@ -295,34 +561,6 @@ const Companies = () => {
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="font-medium text-sm mb-2 flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Interview Rounds
-                  </h4>
-                  <div className="flex flex-wrap gap-1">
-                    {company.rounds.map((round, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs">
-                        {round}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-sm mb-2 flex items-center">
-                    <Code className="h-4 w-4 mr-1" />
-                    Key Skills
-                  </h4>
-                  <div className="flex flex-wrap gap-1">
-                    {company.skills.map((skill, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {skill}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <h4 className="font-medium text-sm mb-1 flex items-center text-blue-800">
                     <Brain className="h-4 w-4 mr-1" />
@@ -331,7 +569,7 @@ const Companies = () => {
                   <p className="text-xs text-blue-700">{company.tips}</p>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
                   <Button 
                     className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
                     onClick={() => handleGetAIInsights(company)}

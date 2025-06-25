@@ -64,6 +64,11 @@ const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) =>
           role: 'system',
           content: `The user is asking about ${companyName}. Here's the company information: ${JSON.stringify(companyInfo)}. Provide detailed, specific information about this company including interview processes, common questions, salary ranges, and preparation tips.`
         });
+      } else {
+        conversationMessages.unshift({
+          role: 'system',
+          content: 'You are a helpful career counselor and placement preparation assistant. Help students with interview preparation, technical questions, resume building, and career guidance for companies recruiting from India colleges.'
+        });
       }
 
       console.log('Sending messages to AI:', conversationMessages);
@@ -118,12 +123,6 @@ const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) =>
       } else {
         fallbackContent = "Meanwhile, you can explore our Resources section for helpful placement materials, company-specific guides, and practice questions. Feel free to try asking me again in a few minutes!";
       }
-
-      toast({
-        title: "Connection Issue",
-        description: errorMessage,
-        variant: "destructive"
-      });
 
       // Add fallback message
       const fallbackMessage: Message = {
