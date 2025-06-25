@@ -18,13 +18,17 @@ interface Message {
 interface ChatBotProps {
   isOpen: boolean;
   onClose: () => void;
+  companyName?: string;
+  companyInfo?: any;
 }
 
-const ChatBot = ({ isOpen, onClose }: ChatBotProps) => {
+const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content: "Hi! I'm your CampusCrack AI assistant. I can help you with placement preparation, company insights, interview tips, coding problems, resume building, and much more. How can I assist you today?",
+      content: companyName 
+        ? `Hi! I'm your CampusCrack AI assistant. I can help you with detailed information about ${companyName}, including interview questions, preparation tips, and company-specific insights. What would you like to know?`
+        : "Hi! I'm your CampusCrack AI assistant. I can help you with placement preparation, company insights, interview tips, coding problems, resume building, and much more. How can I assist you today?",
       isUser: false,
       timestamp: new Date(),
     },
@@ -48,17 +52,31 @@ const ChatBot = ({ isOpen, onClose }: ChatBotProps) => {
     setIsLoading(true);
 
     try {
-      // Prepare messages for the AI API
-      const conversationMessages = [...messages, userMessage].map(msg => ({
+      // Prepare messages for the AI API with company context
+      let conversationMessages = [...messages, userMessage].map(msg => ({
         role: msg.isUser ? 'user' : 'assistant',
         content: msg.content
       })).filter(msg => msg.content !== messages[0].content); // Remove initial greeting
+
+      // Add company context if available
+      if (companyName && companyInfo) {
+        conversationMessages.unshift({
+          role: 'system',
+          content: `The user is asking about ${companyName}. Here's the company information: ${JSON.stringify(companyInfo)}. Provide detailed, specific information about this company including interview processes, common questions, salary ranges, and preparation tips.`
+        });
+      }
 
       const { data, error } = await supabase.functions.invoke('ai-chat', {
         body: { messages: conversationMessages }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check for specific API quota error
+        if (error.message?.includes('quota') || error.message?.includes('insufficient_quota')) {
+          throw new Error('AI service is temporarily unavailable due to API limits. Please try again later or contact support.');
+        }
+        throw error;
+      }
 
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -70,21 +88,30 @@ const ChatBot = ({ isOpen, onClose }: ChatBotProps) => {
       setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
       console.error('Error getting AI response:', error);
+      
+      let errorMessage = "I apologize, but I'm having trouble connecting right now. Please try again in a moment.";
+      
+      if (error.message?.includes('quota') || error.message?.includes('insufficient_quota')) {
+        errorMessage = "The AI service is temporarily unavailable due to API limits. Please try again later or contact support for assistance.";
+      }
+
       toast({
         title: "Error",
-        description: "Failed to get AI response. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       });
 
-      // Add error message
-      const errorMessage: Message = {
+      // Add error message with helpful fallback content
+      const fallbackMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I apologize, but I'm having trouble connecting right now. Please try again in a moment, or feel free to explore our Resources section for helpful materials.",
+        content: companyName 
+          ? `I'm currently unavailable, but here's what I can tell you about ${companyName} based on our database: This company typically asks ${companyInfo?.rounds?.join(', ')} in their interview process. Key skills they look for include: ${companyInfo?.skills?.join(', ')}. Pro tip: ${companyInfo?.tips || 'Focus on fundamentals and practice coding problems.'}`
+          : "I'm currently unavailable, but feel free to explore our Resources section for helpful placement materials, or try asking me again in a few minutes.",
         isUser: false,
         timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, fallbackMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +123,7 @@ const ChatBot = ({ isOpen, onClose }: ChatBotProps) => {
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Bot className="h-5 w-5 text-blue-600" />
-            <span>CampusCrack AI Assistant</span>
+            <span>{companyName ? `${companyName} AI Assistant` : 'CampusCrack AI Assistant'}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -150,7 +177,7 @@ const ChatBot = ({ isOpen, onClose }: ChatBotProps) => {
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Ask me anything about placements..."
+            placeholder={companyName ? `Ask about ${companyName}...` : "Ask me anything about placements..."}
             onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
             className="flex-1"
             disabled={isLoading}

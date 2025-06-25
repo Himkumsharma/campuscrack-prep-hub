@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,9 +16,14 @@ import {
   Brain,
   MessageSquare
 } from "lucide-react";
+import ChatBot from "@/components/ChatBot";
+import CompanyInsightsDialog from "@/components/CompanyInsightsDialog";
 
 const Companies = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [isInsightsOpen, setIsInsightsOpen] = useState(false);
 
   const companies = [
     {
@@ -120,6 +124,16 @@ const Companies = () => {
       case "Hard": return "bg-red-100 text-red-800";
       default: return "bg-gray-100 text-gray-800";
     }
+  };
+
+  const handleGetAIInsights = (company) => {
+    setSelectedCompany(company);
+    setIsInsightsOpen(true);
+  };
+
+  const handleOpenAIChat = (company) => {
+    setSelectedCompany(company);
+    setIsChatOpen(true);
   };
 
   return (
@@ -265,15 +279,49 @@ const Companies = () => {
                   <p className="text-xs text-blue-700">{company.tips}</p>
                 </div>
 
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Get AI Insights
-                </Button>
+                <div className="space-y-2">
+                  <Button 
+                    className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                    onClick={() => handleGetAIInsights(company)}
+                  >
+                    <Brain className="h-4 w-4 mr-2" />
+                    Get AI Insights
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => handleOpenAIChat(company)}
+                  >
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Chat with AI
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
       </div>
+
+      {/* AI Chat Dialog */}
+      <ChatBot 
+        isOpen={isChatOpen} 
+        onClose={() => {
+          setIsChatOpen(false);
+          setSelectedCompany(null);
+        }}
+        companyName={selectedCompany?.name}
+        companyInfo={selectedCompany}
+      />
+
+      {/* Company Insights Dialog */}
+      <CompanyInsightsDialog 
+        isOpen={isInsightsOpen}
+        onClose={() => {
+          setIsInsightsOpen(false);
+          setSelectedCompany(null);
+        }}
+        company={selectedCompany}
+      />
     </div>
   );
 };

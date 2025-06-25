@@ -18,6 +18,19 @@ serve(async (req) => {
   try {
     const { messages } = await req.json();
 
+    // Check if OpenAI API key is available
+    if (!openAIApiKey) {
+      console.error('OpenAI API key not configured');
+      return new Response(JSON.stringify({ 
+        error: 'AI service is not configured. Please contact support.' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log('Making request to OpenAI with messages:', messages.length);
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -38,30 +51,64 @@ Key areas you help with:
 - Resume and profile building
 - Career guidance and placement strategies
 - Communication skills improvement
+- Specific interview questions and their answers
+- Test preparation strategies
 
-Always be encouraging, practical, and provide actionable advice. Keep responses helpful but concise.`
+Always be encouraging, practical, and provide actionable advice. Keep responses helpful but concise. When discussing specific companies, provide detailed information about their interview process, common questions, salary ranges, and preparation tips.`
           },
           ...messages
         ],
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 1500,
       }),
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`OpenAI API error: ${error}`);
+      const errorText = await response.text();
+      console.error(`OpenAI API error (${response.status}):`, errorText);
+      
+      let errorMessage = 'AI service is temporarily unavailable. Please try again later.';
+      
+      if (response.status === 429 || errorText.includes('quota') || errorText.includes('insufficient_quota')) {
+        errorMessage = 'AI service quota exceeded. Please try again later or contact support.';
+      } else if (response.status === 401) {
+        errorMessage = 'AI service authentication failed. Please contact support.';
+      }
+      
+      return new Response(JSON.stringify({ error: errorMessage }), {
+        status: response.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const data = await response.json();
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid response structure from OpenAI:', data);
+      return new Response(JSON.stringify({ 
+        error: 'Invalid response from AI service. Please try again.' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const aiResponse = data.choices[0].message.content;
+    console.log('Successfully generated AI response');
 
     return new Response(JSON.stringify({ response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error in ai-chat function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    
+    let errorMessage = 'An unexpected error occurred. Please try again.';
+    
+    if (error.message?.includes('fetch')) {
+      errorMessage = 'Network error connecting to AI service. Please check your connection and try again.';
+    }
+    
+    return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
