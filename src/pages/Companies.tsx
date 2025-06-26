@@ -142,7 +142,7 @@ const Companies = () => {
     {
       id: 4,
       name: "Microsoft",
-      logo: "🪟",
+      logo: "https://logo.clearbit.com/microsoft.com",
       category: "Product Based",
       package: "15.0 - 35.0 LPA", 
       location: "Bangalore, Hyderabad",
@@ -151,12 +151,33 @@ const Companies = () => {
       description: "Technology giant known for Windows, Office, and Azure cloud services.",
       rounds: ["Coding Round", "Technical Interviews", "AA Interview"],
       skills: ["C++", "C#", "System Design", "Problem Solving"],
-      tips: "Focus on clean code and system design concepts."
+      tips: "Focus on clean code and system design concepts.",
+      hiringProcess: [
+        "Online Application",
+        "Online Assessment",
+        "Phone Screen",
+        "Onsite Interviews",
+        "As Appropriate (AA) Interview"
+      ],
+      previousYearQuestions: [
+        "Reverse a linked list",
+        "Design a parking lot system",
+        "Explain polymorphism in C++",
+        "Azure services overview",
+        "Why Microsoft?"
+      ],
+      crackingStrategy: [
+        "Master algorithms and data structures",
+        "Practice system design problems",
+        "Learn Microsoft technologies",
+        "Prepare behavioral questions",
+        "Practice coding on whiteboard"
+      ]
     },
     {
       id: 5,
       name: "Wipro",
-      logo: "🌐",
+      logo: "https://logo.clearbit.com/wipro.com",
       category: "Service Based",
       package: "3.2 - 6.0 LPA",
       location: "Multiple Cities",
@@ -165,12 +186,33 @@ const Companies = () => {
       description: "Global IT consulting and business process services company.",
       rounds: ["Written Test", "Technical Interview", "HR Interview"],
       skills: ["Java", "SQL", "Communication", "Basic Programming"],
-      tips: "Focus on fundamental programming concepts and verbal skills."
+      tips: "Focus on fundamental programming concepts and verbal skills.",
+      hiringProcess: [
+        "Online Registration",
+        "Written Test",
+        "Technical Interview",
+        "HR Interview",
+        "Document Verification"
+      ],
+      previousYearQuestions: [
+        "What is Java?",
+        "Difference between C and C++",
+        "Basic SQL queries",
+        "Tell me about yourself",
+        "Why Wipro?"
+      ],
+      crackingStrategy: [
+        "Focus on basic programming",
+        "Practice communication skills",
+        "Prepare for aptitude test",
+        "Study company background",
+        "Practice common interview questions"
+      ]
     },
     {
       id: 6,
       name: "Accenture",
-      logo: "⚡",
+      logo: "https://logo.clearbit.com/accenture.com",
       category: "Consulting",
       package: "4.5 - 9.0 LPA",
       location: "Multiple Cities",
@@ -179,12 +221,33 @@ const Companies = () => {
       description: "Global professional services company with consulting expertise.",
       rounds: ["Cognitive Assessment", "Technical Round", "Communication Round"],
       skills: ["Analytics", "Communication", "Problem Solving", "Domain Knowledge"],
-      tips: "Develop strong analytical and communication skills."
+      tips: "Develop strong analytical and communication skills.",
+      hiringProcess: [
+        "Online Application",
+        "Cognitive Assessment",
+        "Technical Interview",
+        "Communication Round",
+        "HR Interview"
+      ],
+      previousYearQuestions: [
+        "Analytical reasoning questions",
+        "Case study problems",
+        "Communication exercises",
+        "Basic technical concepts",
+        "Why consulting?"
+      ],
+      crackingStrategy: [
+        "Practice analytical reasoning",
+        "Improve communication skills",
+        "Study business concepts",
+        "Practice case studies",
+        "Prepare for group discussions"
+      ]
     },
     {
       id: 7,
       name: "Capgemini",
-      logo: "💻",
+      logo: "https://logo.clearbit.com/capgemini.com",
       category: "Consulting",
       package: "4.0 - 8.5 LPA",
       location: "Multiple Cities",
@@ -193,12 +256,33 @@ const Companies = () => {
       description: "Global consulting, technology services and digital transformation company.",
       rounds: ["Online Test", "Technical Interview", "HR Round"],
       skills: ["Java", "Communication", "Problem Solving", "Business Analysis"],
-      tips: "Focus on both technical and business communication skills."
+      tips: "Focus on both technical and business communication skills.",
+      hiringProcess: [
+        "Online Application",
+        "Online Assessment",
+        "Technical Interview",
+        "HR Interview",
+        "Final Selection"
+      ],
+      previousYearQuestions: [
+        "Java programming questions",
+        "Problem solving scenarios",
+        "Business case studies",
+        "Technical concepts",
+        "Career goals discussion"
+      ],
+      crackingStrategy: [
+        "Balance technical and soft skills",
+        "Practice problem solving",
+        "Study business concepts",
+        "Improve presentation skills",
+        "Prepare for technical questions"
+      ]
     },
     {
       id: 8,
       name: "Deloitte",
-      logo: "🏢",
+      logo: "https://logo.clearbit.com/deloitte.com",
       category: "Consulting",
       package: "6.0 - 12.0 LPA",
       location: "Multiple Cities",
@@ -207,7 +291,28 @@ const Companies = () => {
       description: "Global professional services network providing audit, consulting, and advisory services.",
       rounds: ["Online Assessment", "Case Study", "Partner Interview"],
       skills: ["Analytics", "Business Acumen", "Communication", "Leadership"],
-      tips: "Prepare for case studies and demonstrate business thinking."
+      tips: "Prepare for case studies and demonstrate business thinking.",
+      hiringProcess: [
+        "Online Application",
+        "Online Assessment",
+        "Case Study Round",
+        "Technical Interview",
+        "Partner Interview"
+      ],
+      previousYearQuestions: [
+        "Business case analysis",
+        "Market research questions",
+        "Leadership scenarios",
+        "Financial concepts",
+        "Consulting approach"
+      ],
+      crackingStrategy: [
+        "Master case study approach",
+        "Develop business acumen",
+        "Practice structured thinking",
+        "Improve analytical skills",
+        "Prepare leadership examples"
+      ]
     }
   ];
 
@@ -271,7 +376,8 @@ const Companies = () => {
                 alt={selectedCompany.name}
                 className="w-16 h-16 rounded-lg object-contain"
                 onError={(e) => {
-                  e.target.src = `https://ui-avatars.com/api/?name=${selectedCompany.name}&background=random`;
+                  const target = e.target as HTMLImageElement;
+                  target.src = `https://ui-avatars.com/api/?name=${selectedCompany.name}&background=random`;
                 }}
               />
               <div>
@@ -525,7 +631,8 @@ const Companies = () => {
                       alt={company.name}
                       className="w-12 h-12 rounded-lg object-contain"
                       onError={(e) => {
-                        e.target.src = `https://ui-avatars.com/api/?name=${company.name}&background=random`;
+                        const target = e.target as HTMLImageElement;
+                        target.src = `https://ui-avatars.com/api/?name=${company.name}&background=random`;
                       }}
                     />
                     <div>
