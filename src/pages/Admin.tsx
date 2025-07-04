@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,6 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 
 const Admin = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -51,101 +49,37 @@ const Admin = () => {
   });
 
   useEffect(() => {
-    fetchData();
+    // TODO: Fetch companies, questions, and students from backend API
+    setCompanies([]);
+    setQuestions([]);
+    setStudents([]);
+    setLoading(false);
   }, []);
-
-  const fetchData = async () => {
-    try {
-      // Fetch companies
-      const { data: companiesData } = await supabase
-        .from('companies')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      // Fetch questions with company names
-      const { data: questionsData } = await supabase
-        .from('questions')
-        .select(`
-          *,
-          companies (name)
-        `)
-        .order('created_at', { ascending: false });
-
-      // Fetch student profiles
-      const { data: studentsData } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      setCompanies(companiesData || []);
-      setQuestions(questionsData || []);
-      setStudents(studentsData || []);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleAddCompany = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const { data, error } = await supabase
-        .from('companies')
-        .insert([companyForm])
-        .select();
-
-      if (error) throw error;
-
-      toast({
-        title: "Company Added",
-        description: "New company has been added successfully!",
-      });
-
-      setCompanyForm({ name: "", category: "", description: "" });
-      fetchData();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
+    // TODO: Implement API call to add company
+    toast({
+      title: "Company Added",
+      description: "New company has been added successfully! (placeholder)",
+    });
+    setCompanyForm({ name: "", category: "", description: "" });
   };
 
   const handleAddQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const { data, error } = await supabase
-        .from('questions')
-        .insert([{
-          ...questionForm,
-          created_by: user?.id
-        }])
-        .select();
-
-      if (error) throw error;
-
-      toast({
-        title: "Question Added",
-        description: "New question has been added successfully!",
-      });
-
-      setQuestionForm({
-        company_id: "",
-        question_type: "",
-        question: "",
-        answer: "",
-        difficulty: ""
-      });
-      fetchData();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
+    // TODO: Implement API call to add question
+    toast({
+      title: "Question Added",
+      description: "New question has been added successfully! (placeholder)",
+    });
+    setQuestionForm({
+      company_id: "",
+      question_type: "",
+      question: "",
+      answer: "",
+      difficulty: ""
+    });
   };
 
   const handleSignOut = async () => {

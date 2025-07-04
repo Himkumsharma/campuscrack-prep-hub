@@ -27,62 +27,34 @@ const Auth = () => {
   });
   
   const { toast } = useToast();
-  const { signIn, signUp, resendConfirmation, user, userRole } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in and email confirmed
+  // Redirect if already logged in
   useEffect(() => {
-    if (user && user.email_confirmed_at && userRole) {
-      // Redirect to home page instead of dashboard for better UX
+    if (user) {
       navigate('/');
     }
-  }, [user, userRole, navigate]);
+  }, [user, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setShowEmailNotConfirmed(false);
-    
     try {
       const { data, error } = await signIn(loginEmail, loginPassword);
-      
       if (error) {
-        if (error.message.includes('Email not confirmed')) {
-          setShowEmailNotConfirmed(true);
-          setPendingEmail(loginEmail);
-          toast({
-            title: "Email Not Confirmed",
-            description: "Please check your email and click the confirmation link before logging in.",
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Login Failed",
-            description: error.message,
-            variant: "destructive"
-          });
-        }
-        return;
-      }
-
-      if (data.user && !data.user.email_confirmed_at) {
-        setShowEmailNotConfirmed(true);
-        setPendingEmail(loginEmail);
         toast({
-          title: "Email Not Confirmed",
-          description: "Please check your email and click the confirmation link.",
+          title: "Login Failed",
+          description: error.message,
           variant: "destructive"
         });
         return;
       }
-
-      if (data.user && data.user.email_confirmed_at) {
+      if (data) {
         toast({
           title: "Login Successful",
           description: "Welcome back to CampusCrack!",
         });
-        
-        // Navigation will be handled by useEffect
       }
     } catch (error: any) {
       toast({
@@ -95,40 +67,9 @@ const Auth = () => {
     }
   };
 
-  const handleResendConfirmation = async () => {
-    if (!pendingEmail) return;
-    
-    setIsLoading(true);
-    try {
-      const { error } = await resendConfirmation(pendingEmail);
-      
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Confirmation Email Sent",
-          description: "Please check your email for the confirmation link.",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to resend confirmation email",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
     try {
       const { data, error } = await signUp(signupData.email, signupData.password, {
         first_name: signupData.firstName,
@@ -136,7 +77,6 @@ const Auth = () => {
         phone: signupData.phone,
         college: signupData.college
       });
-      
       if (error) {
         toast({
           title: "Registration Failed",
@@ -145,14 +85,11 @@ const Auth = () => {
         });
         return;
       }
-
-      if (data.user) {
+      if (data) {
         toast({
           title: "Registration Successful",
-          description: "Please check your email for verification before logging in.",
+          description: "You can now log in.",
         });
-        
-        // Clear form and switch to login tab
         setSignupData({
           firstName: "",
           lastName: "",

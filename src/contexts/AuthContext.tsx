@@ -1,17 +1,21 @@
+import { createContext, useContext, useState, useEffect } from 'react';
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+interface UserType {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  college?: string;
+}
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: UserType | null;
   userRole: 'admin' | 'student' | null;
   loading: boolean;
   signUp: (email: string, password: string, userData: any) => Promise<any>;
   signIn: (email: string, password: string) => Promise<any>;
   signOut: () => Promise<void>;
-  resendConfirmation: (email: string) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,123 +28,112 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [userRole, setUserRole] = useState<'admin' | 'student' | null>(null);
-  const [loading, setLoading] = useState(true);
+const API_URL = 'http://localhost:5000'; // Change if backend runs elsewhere
 
-  const fetchUserRole = async (userId: string) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<UserType | null>(null);
+  const [userRole, setUserRole] = useState<'admin' | 'student' | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchProfile(token);
+    }
+    // eslint-disable-next-line
+  }, []);
+
+  const fetchProfile = async (token: string) => {
+    setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching user role:', error);
-        return;
+      const res = await fetch(`${API_URL}/api/user/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);
+        setUserRole('student'); // Default all users to student
+      } else {
+        setUser(null);
+        setUserRole(null);
+        localStorage.removeItem('token');
       }
-      
-      setUserRole(data?.role || 'student');
-    } catch (error) {
-      console.error('Error fetching user role:', error);
-      setUserRole('student');
+    } catch {
+      setUser(null);
+      setUserRole(null);
+      localStorage.removeItem('token');
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email_confirmed_at);
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user && session.user.email_confirmed_at) {
-          // Only fetch role if email is confirmed
-          setTimeout(() => {
-            fetchUserRole(session.user.id);
-          }, 0);
-        } else {
-          setUserRole(null);
-        }
-        
-        setLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Existing session:', session?.user?.email_confirmed_at);
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user && session.user.email_confirmed_at) {
-        fetchUserRole(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   const signUp = async (email: string, password: string, userData: any) => {
-    const redirectUrl = `${window.location.origin}/auth`;
-    
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: userData
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: userData.first_name,
+          lastName: userData.last_name,
+          email,
+          phone: userData.phone,
+          college: userData.college,
+          password,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { data: null, error: { message: data.error || 'Signup failed' } };
       }
-    });
-    
-    return { data, error };
+      return { data, error: null };
+    } catch (error: any) {
+      return { data: null, error };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    return { data, error };
-  };
-
-  const resendConfirmation = async (email: string) => {
-    const { data, error } = await supabase.auth.resend({
-      type: 'signup',
-      email: email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth`
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        return { data: null, error: { message: data.error || 'Login failed' } };
       }
-    });
-    
-    return { data, error };
+      // Save token and fetch profile
+      localStorage.setItem('token', data.token);
+      setUser(data.user);
+      setUserRole('student'); // Default all users to student
+      return { data, error: null };
+    } catch (error: any) {
+      return { data: null, error };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-    
     setUser(null);
-    setSession(null);
     setUserRole(null);
-    window.location.href = '/auth';
+    localStorage.removeItem('token');
   };
 
   const value = {
     user,
-    session,
     userRole,
     loading,
     signUp,
     signIn,
     signOut,
-    resendConfirmation,
   };
 
   return (

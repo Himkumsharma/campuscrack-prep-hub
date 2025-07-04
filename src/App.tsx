@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,7 +10,7 @@ import Companies from "./pages/Companies";
 import Resources from "./pages/Resources";
 import Login from "./pages/Login";
 import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
+import Dashboard, { DashboardHome, DashboardProfile, DashboardStats, DashboardSettings } from "./pages/Dashboard";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -32,7 +31,12 @@ const App = () => (
               <ProtectedRoute requiredRole="student">
                 <Dashboard />
               </ProtectedRoute>
-            } />
+            }>
+              <Route index element={<DashboardHome />} />
+              <Route path="profile" element={<DashboardProfile />} />
+              <Route path="stats" element={<DashboardStats />} />
+              <Route path="settings" element={<DashboardSettings />} />
+            </Route>
             <Route path="/admin" element={
               <ProtectedRoute requiredRole="admin">
                 <Admin />

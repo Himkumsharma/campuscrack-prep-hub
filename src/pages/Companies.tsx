@@ -516,16 +516,14 @@ const Companies = () => {
                 className="flex-1 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
                 onClick={() => handleGetAIInsights(selectedCompany)}
               >
-                <Brain className="h-4 w-4 mr-2" />
-                Get AI Insights
+                Get Insights
               </Button>
               <Button 
                 variant="outline" 
                 className="flex-1"
                 onClick={() => handleOpenAIChat(selectedCompany)}
               >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Chat with AI
+                Open Assistant
               </Button>
             </div>
           </div>
@@ -681,16 +679,14 @@ const Companies = () => {
                     className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
                     onClick={() => handleGetAIInsights(company)}
                   >
-                    <Brain className="h-4 w-4 mr-2" />
-                    Get AI Insights
+                    Get Insights
                   </Button>
                   <Button 
                     variant="outline" 
                     className="w-full"
                     onClick={() => handleOpenAIChat(company)}
                   >
-                    <MessageSquare className="h-4 w-4 mr-2" />
-                    Chat with AI
+                    Open Assistant
                   </Button>
                 </div>
               </CardContent>

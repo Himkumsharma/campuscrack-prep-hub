@@ -1,11 +1,9 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Bot, User, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface Message {
@@ -27,8 +25,8 @@ const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) =>
     {
       id: "1",
       content: companyName 
-        ? `Hi! I'm your CampusCrack AI assistant. I can help you with detailed information about ${companyName}, including interview questions, preparation tips, and company-specific insights. What would you like to know?`
-        : "Hi! I'm your CampusCrack AI assistant. I can help you with placement preparation, company insights, interview tips, coding problems, resume building, and much more. How can I assist you today?",
+        ? `Hi! I can help you with detailed information about ${companyName}, including interview questions, preparation tips, and company-specific insights. What would you like to know?`
+        : "Hi! I can help you with placement preparation, company insights, interview tips, coding problems, resume building, and much more. How can I assist you today?",
       isUser: false,
       timestamp: new Date(),
     },
@@ -150,8 +148,8 @@ const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) =>
       <DialogContent className="max-w-md h-[500px] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <Bot className="h-5 w-5 text-blue-600" />
-            <span>{companyName ? `${companyName} AI Assistant` : 'CampusCrack AI Assistant'}</span>
+            {/* <Bot className="h-5 w-5 text-blue-600" /> */}
+            <span>{companyName ? `${companyName} Assistant` : 'Placement Assistant'}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -166,7 +164,7 @@ const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) =>
               >
                 {!message.isUser && (
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                    <Bot className="h-4 w-4 text-blue-600" />
+                    {/* <Bot className="h-4 w-4 text-blue-600" /> */}
                   </div>
                 )}
                 <div
@@ -188,7 +186,7 @@ const ChatBot = ({ isOpen, onClose, companyName, companyInfo }: ChatBotProps) =>
             {isLoading && (
               <div className="flex items-start space-x-2 justify-start">
                 <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <Bot className="h-4 w-4 text-blue-600" />
+                  {/* <Bot className="h-4 w-4 text-blue-600" /> */}
                 </div>
                 <div className="bg-gray-100 text-gray-900 p-3 rounded-lg">
                   <div className="flex items-center space-x-2">

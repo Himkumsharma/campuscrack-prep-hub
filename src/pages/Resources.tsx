@@ -262,13 +262,12 @@ const Resources = () => {
             Comprehensive collection of previous year questions, interview tips, and coding practice
           </p>
           
-          {/* AI Assistant Button */}
+          {/* Assistant Button */}
           <Button 
             onClick={() => setIsChatOpen(true)}
             className="mb-8 bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
           >
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Ask AI Assistant
+            Open Assistant
           </Button>
         </div>
 
